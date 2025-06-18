@@ -1,32 +1,33 @@
-#include <stdio.h>
 #include <string.h>
-
-#define MAX_CMD 1024
+#include <unistd.h>
 
 int main()
 {
-    char cmd[MAX_CMD];
+    char str[64];
 
-    while (1)
+    while(1)
     {
-        printf("myshell> ");
+        write(1, "#: ", 3);
 
-        if (fgets(cmd, sizeof(cmd), stdin) == NULL)
-        {
+        ssize_t str_size = read(0, str, sizeof(str));
+
+        if (str_size == 0){
+            write(1, "\n", 1);
             break;
         }
 
-
-        size_t len = strlen(cmd);
+        str[str_size] = '\0'; 
         
-        if (len > 0 && cmd[len - 1] == '\n')
-            cmd[len - 1] = '\0';
+        if (str_size > 0 && str[str_size - 1] == '\n'){
+            str[str_size - 1] = '\0';
+        }
 
-        if (strcmp(cmd, "exit") == 0)
+        if (strcmp(str, "exit") == 0){
             break;
+        }
 
-        printf("Command entered: %s\n", cmd);
-
-        return 0;
+        write(1, str, strlen(str));
+        write(1, "\n", 1);
     }
+    return 0;
 }
