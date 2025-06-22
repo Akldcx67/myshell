@@ -1,11 +1,13 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/types.h>
+#include <pwd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #define MAX 1024
 #define PATH_MAX 1024
-
+#define MAX_LEN_USER 32
 int tokenize_input(char *input, char *argv[], int max_args){
     char *p = input;
     int i = 0;
@@ -42,9 +44,25 @@ int main(){
     char str[MAX];
 
     while(1){
-        char cd[PATH_MAX];
-        getcwd(cd, sizeof(cd));
+        uid_t uid = getuid();
 
+        struct passwd *pw;
+
+        pw = getpwuid(uid);
+
+        char *username = pw->pw_name;
+        /*
+        uid_t some = getpw(struct passwd *);
+
+        if (some == NULL){
+            write(2, "error\n", 5);
+        }
+        */
+        char cd[PATH_MAX];
+
+        getcwd(cd, sizeof(cd));
+        
+        write(1, username, strlen(username));
         write(1, "[", 1);
         write(1, cd, strlen(cd));
         write(1, "]#: ", 4);
