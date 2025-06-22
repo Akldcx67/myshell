@@ -1,6 +1,10 @@
 #include <string.h>
 #include <unistd.h>
-#define MAX 64
+#include <sys/wait.h>
+#include <stdlib.h>
+#include <stdio.h>
+#define MAX 1024
+#define PATH_MAX 1024
 
 int tokenize_input(char *input, char *argv[], int max_args)
 {
@@ -39,7 +43,12 @@ int main(){
     char str[MAX];
 
     while(1){
-        write(1, "#: ", 3);
+        char cd[PATH_MAX];
+        getcwd(cd, sizeof(cd));
+
+        write(1, "[", 1);
+        write(1, cd, strlen(cd));
+        write(1, "]#: ", 4);
         ssize_t str_size = read(0, str, sizeof(str));
 
         if (str_size == 0){
@@ -58,8 +67,44 @@ int main(){
         if (strcmp(argv[0], "exit") == 0){
             break;
         }
-        write(1, argv[0], strlen(argv[0]));
-        write(1, "\n", 1);
+
+        if (strcmp(argv[0], "cd") == 0){
+
+            if (argv[1] == NULL){
+                write(2, "cd: missing argument\n", 22);
+            }
+            else{
+                if (chdir(argv[1]) != 0){
+                    write(2, "cd: no such directory\n", 23);
+                }
+            }
+            continue;
+        }
+        pid_t pid = fork();
+        
+        if (pid == 0){
+            if (execvp(argv[0], argv) == -1){
+                write(1, "Command not found\n", 19);
+                _exit(1);
+            }
+            //else{
+                execvp(argv[0], argv);
+                //exit(0);
+            //}
+        }
+        if (pid > 0){
+            wait(NULL);
+        }
+        if (pid < 0){
+            //perror("command not found");
+            exit(1);
+        }
+
+        if (strcmp(argv[0], "exit") == 0){
+            break;
+        }
+        //write(1, argv[0], strlen(argv[0]));
+        //write(1, "\n", 1);
     }
     return 0;
 }
