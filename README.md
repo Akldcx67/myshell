@@ -7,7 +7,7 @@ gcc main.c
 or
 
 ```
-gcc main.c -o <your name>
+gcc main.c -o your name
 ./your name
 ```
 In my shell, basic commands work such as:
