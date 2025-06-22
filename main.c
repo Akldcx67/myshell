@@ -6,8 +6,7 @@
 #define MAX 1024
 #define PATH_MAX 1024
 
-int tokenize_input(char *input, char *argv[], int max_args)
-{
+int tokenize_input(char *input, char *argv[], int max_args){
     char *p = input;
     int i = 0;
 
@@ -87,24 +86,18 @@ int main(){
                 write(1, "Command not found\n", 19);
                 _exit(1);
             }
-            //else{
                 execvp(argv[0], argv);
-                //exit(0);
-            //}
         }
         if (pid > 0){
             wait(NULL);
         }
         if (pid < 0){
-            //perror("command not found");
             exit(1);
         }
 
         if (strcmp(argv[0], "exit") == 0){
             break;
         }
-        //write(1, argv[0], strlen(argv[0]));
-        //write(1, "\n", 1);
     }
     return 0;
 }
