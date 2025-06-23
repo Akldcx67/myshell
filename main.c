@@ -102,7 +102,7 @@ int main(){
         
         if (pid == 0){
             if (execvp(argv[0], argv) == -1){
-                perror("Command not found");
+                fprintf(stderr, "Command not found\n");
                 _exit(1);
             }
         }
