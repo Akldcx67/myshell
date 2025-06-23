@@ -50,18 +50,19 @@ int main(){
 
         pw = getpwuid(uid);
 
-        char *username = pw->pw_name;
-        /*
-        uid_t some = getpw(struct passwd *);
-
-        if (some == NULL){
-            write(2, "error\n", 5);
+        if (pw == NULL){
+            fprintf(stderr, "error: username not found\n");
+            continue;
         }
-        */
-        char cd[PATH_MAX];
 
-        getcwd(cd, sizeof(cd));
-        
+        char *username = pw->pw_name;
+
+        char cd[PATH_MAX];
+            
+        if (getcwd(cd, sizeof(cd)) == NULL){
+            fprintf(stderr, "error: can't get curent directory\n");
+            continue;
+        }
         write(1, username, strlen(username));
         write(1, "[", 1);
         write(1, cd, strlen(cd));
@@ -82,17 +83,17 @@ int main(){
         if (argc == 0) continue;
 
         if (strcmp(argv[0], "exit") == 0){
-            break;
+            exit(0);
         }
 
         if (strcmp(argv[0], "cd") == 0){
 
             if (argv[1] == NULL){
-                write(2, "cd: missing argument\n", 22);
+                fprintf(stderr, "cd: missing argument\n");
             }
             else{
                 if (chdir(argv[1]) != 0){
-                    write(2, "cd: no such directory\n", 23);
+                    perror("cd");
                 }
             }
             continue;
@@ -101,10 +102,9 @@ int main(){
         
         if (pid == 0){
             if (execvp(argv[0], argv) == -1){
-                write(1, "Command not found\n", 19);
+                perror("Command not found");
                 _exit(1);
             }
-                execvp(argv[0], argv);
         }
         if (pid > 0){
             wait(NULL);
@@ -113,9 +113,6 @@ int main(){
             exit(1);
         }
 
-        if (strcmp(argv[0], "exit") == 0){
-            break;
-        }
     }
     return 0;
 }
