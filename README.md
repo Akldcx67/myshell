@@ -1,4 +1,4 @@
-To run the shell you need a compiler I have GCC. Here are the commands:
+To run the shell you need a compiler I have GCC
 
 ```
 gcc main.c
