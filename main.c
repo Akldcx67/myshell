@@ -60,7 +60,7 @@ int main(){
         char cd[PATH_MAX];
             
         if (getcwd(cd, sizeof(cd)) == NULL){
-            fprintf(stderr, "error: can't get curent directory\n");
+            fprintf(stderr, "error: can't get current directory\n");
             continue;
         }
         write(1, username, strlen(username));
@@ -93,7 +93,7 @@ int main(){
             }
             else{
                 if (chdir(argv[1]) != 0){
-                    perror("cd");
+                    fprintf(stderr, "cd: %s: failed to change directory\n", argv[1]);
                 }
             }
             continue;
