@@ -1,22 +1,15 @@
-To run the shell you need a compiler I have GCC
+First:
+```
+git clone https://github.com/Akldcx67/myshell.git
+```
+next:
 
 ```
-gcc main.c
-./a.out
+cd myshell
 ```
-or
-
+To run shell:
 ```
-gcc main.c -o your name
-./your name
-```
-In my shell, basic commands work such as:
-cd, ls, cat, pwd, etc.
-
-BUT!
-
-if you type cd, you will not be returned to your home directory, but there will be an error:
-
-```
-cd: missing argument
+chmod +x start_shell.sh
+./start_shell.sh
+./shell
 ```
