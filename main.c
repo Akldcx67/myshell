@@ -1,13 +1,14 @@
 #include <string.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <pwd.h>
 #include <stdlib.h>
 #include <stdio.h>
-#define MAX 1024
-#define PATH_MAX 1024
-#define MAX_LEN_USER 32
+#define MAX 255
+#define MAX_PATH 255
 int tokenize_input(char *input, char *argv[], int max_args){
     char *p = input;
     int i = 0;
@@ -52,12 +53,12 @@ int main(){
 
         if (pw == NULL){
             fprintf(stderr, "error: username not found\n");
-            continue;
+            exit(0);
         }
 
         char *username = pw->pw_name;
 
-        char cd[PATH_MAX];
+        char cd[MAX_PATH];
             
         if (getcwd(cd, sizeof(cd)) == NULL){
             fprintf(stderr, "error: can't get current directory\n");
@@ -80,30 +81,83 @@ int main(){
         char *argv[MAX];
         int argc = tokenize_input(str, argv, MAX);
 
+        char *input_file = NULL;
+        char *output_file = NULL;
+
         if (argc == 0) continue;
 
         if (strcmp(argv[0], "exit") == 0){
             exit(0);
         }
-
+        
         if (strcmp(argv[0], "cd") == 0){
-
             if (argv[1] == NULL){
                 fprintf(stderr, "cd: missing argument\n");
             }
             else{
                 if (chdir(argv[1]) != 0){
-                    fprintf(stderr, "cd: %s: failed to change directory\n", argv[1]);
-                }
+                fprintf(stderr, "cd: %s: failed to change directory\n", argv[1]);
             }
+        }
             continue;
         }
+
+        for(int i = 1; i < argc; i++){
+            if(strcmp(argv[i], "<") == 0){
+                input_file = argv[i+1];
+                argv[i] = NULL;
+                i++;
+            }
+            else if(strcmp(argv[i], ">") == 0){
+                output_file = argv[i+1];
+                argv[i] = NULL;
+                i++;
+            }
+
         pid_t pid = fork();
-        
+
         if (pid == 0){
+            struct stat st;
+            
+            if (input_file != NULL){
+            if (stat(input_file, &st) == 0){
+
+                if (S_ISDIR(st.st_mode)){
+                    fprintf(stderr, "No such file: %s: is a directory\n", input_file);
+                    _exit(EXIT_FAILURE);
+                }
+                
+                int in_f = open(input_file, O_RDONLY);
+
+                if (in_f == -1){
+                    fprintf(stderr, "error input file\n");
+                    _exit(EXIT_FAILURE);
+                }
+                dup2(in_f, STDIN_FILENO);
+                close(in_f);
+                
+            }
+        }
+            if(output_file != NULL){
+                if (stat(output_file, &st) == 0){
+                    if (S_ISDIR(st.st_mode)){
+                        fprintf(stderr, "%s: is directory\n", output_file);
+                        _exit(EXIT_FAILURE);
+                    }
+
+                    int out_f = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+                    if (out_f == -1){
+                        fprintf(stderr, "error output file\n");
+                        _exit(1);
+                    }
+                    dup2(out_f, STDOUT_FILENO);
+                    close(out_f);
+                }
+            }
             if (execvp(argv[0], argv) == -1){
-                fprintf(stderr, "Command not found\n");
-                _exit(1);
+                fprintf(stderr, "%s: Command not found\n", argv[0]);
+                _exit(EXIT_FAILURE);
             }
         }
         if (pid > 0){
@@ -112,7 +166,7 @@ int main(){
         if (pid < 0){
             exit(1);
         }
-
+    }
     }
     return 0;
 }
