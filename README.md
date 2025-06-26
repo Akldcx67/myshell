@@ -2,7 +2,7 @@ First:
 ```
 git clone https://github.com/Akldcx67/myshell.git
 ```
-next:
+then:
 
 ```
 cd myshell
