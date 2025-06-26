@@ -10,35 +10,20 @@
 #define MAX 255
 #define MAX_PATH 255
 int tokenize_input(char *input, char *argv[], int max_args){
-    char *p = input;
     int i = 0;
+    char *token = strtok(input, " ");
 
-    while(*p != '\0'){
-        while(*p == ' ') p++;
-
-        if (*p == '\0'){
+    while (token != NULL){
+        if (i >= max_args - 1){
             break;
         }
         else{
-            argv[i] = p;
-
-            if (i >= max_args - 1){
-                break;
-            }
-
-            while (*p != ' ' && *p != '\0'){ 
-                p++;
-            }
-            if (*p == ' '){
-                    *p = '\0';
-                    p++;
-             }
-            }
+        argv[i] = token;
+        token = strtok(NULL, " ");
         i++;
-        }
-
+      }
+    }
     argv[i] = NULL;
-
     return i;
 }
 int main(){
@@ -102,13 +87,15 @@ int main(){
             continue;
         }
 
+        // Нужно исправить баги и добавить полезные фичи!!!
+
         for(int i = 1; i < argc; i++){
-            if(strcmp(argv[i], "<") == 0){
+            if(i < argc - 1 && strcmp(argv[i], "<") == 0){
                 input_file = argv[i+1];
                 argv[i] = NULL;
                 i++;
             }
-            else if(strcmp(argv[i], ">") == 0){
+            if(i < argc - 1 && strcmp(argv[i], ">") == 0){
                 output_file = argv[i+1];
                 argv[i] = NULL;
                 i++;
