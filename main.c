@@ -11,7 +11,7 @@
 #define MAX_PATH 255
 int tokenize_input(char *input, char *argv[], int max_args){
     int i = 0;
-    char *token = strtok(input, " ");
+    char *token = strtok(input, " '\"");
 
     while (token != NULL){
         if (i >= max_args - 1){
@@ -87,19 +87,25 @@ int main(){
             continue;
         }
 
-        // Нужно исправить баги и добавить полезные фичи!!!
+        // Нужно исправить перенаправление ввода/вывода
 
-        for(int i = 1; i < argc; i++){
-            if(i < argc - 1 && strcmp(argv[i], "<") == 0){
-                input_file = argv[i+1];
-                argv[i] = NULL;
+        int i = 1;
+        while(i++ <= argc)
+        {
+            if(i < argc && strcmp(argv[i], "<") == 0){
+                input_file = argv[i++];
+                argv[i++] = NULL;
                 i++;
             }
-            if(i < argc - 1 && strcmp(argv[i], ">") == 0){
-                output_file = argv[i+1];
-                argv[i] = NULL;
+            else if(i < argc && strcmp(argv[i], ">") == 0){
+                output_file = argv[i++];
+                argv[i++] = NULL;
                 i++;
             }
+            else{
+                i++;
+            }
+        }
 
         pid_t pid = fork();
 
@@ -132,7 +138,7 @@ int main(){
                         _exit(EXIT_FAILURE);
                     }
 
-                    int out_f = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                    int out_f = open(output_file, O_CREAT | O_TRUNC, 0744);
 
                     if (out_f == -1){
                         fprintf(stderr, "error output file\n");
@@ -153,7 +159,6 @@ int main(){
         if (pid < 0){
             exit(1);
         }
-    }
     }
     return 0;
 }
