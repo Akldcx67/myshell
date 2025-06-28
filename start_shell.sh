@@ -1,2 +1,2 @@
 #!/bin/bash
-gcc main.c -o shell -std=c99
+gcc main.c -o shell -std=gnu99
