@@ -87,7 +87,7 @@ int main(){
             continue;
         }
 
-        // Нужно исправить перенаправление ввода/вывода
+        // Need to fix I/O redirection
 
         int i = 1;
         while(i++ <= argc)
